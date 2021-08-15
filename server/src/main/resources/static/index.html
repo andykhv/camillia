@@ -16,12 +16,14 @@
             
             function connect() {
                 var socket = new SockJS('/chat');
+                var room = document.getElementById('room').value;
                 stompClient = Stomp.over(socket);  
                 stompClient.connect({}, function(frame) {
                     setConnected(true);
                     console.log('Connected: ' + frame);
-                    stompClient.subscribe('/topic/messages', function(messageOutput) {
-                        showMessageOutput(JSON.parse(messageOutput.body));
+                    stompClient.subscribe('/topic/' + room,
+                        function(messageOutput) {
+                            showMessageOutput(JSON.parse(messageOutput.body));
                     });
                 });
             }
@@ -37,7 +39,8 @@
             function sendMessage() {
                 var author = document.getElementById('author').value;
                 var body = document.getElementById('body').value;
-                stompClient.send("/app/chat", {}, 
+                var room = document.getElementById('room').value;
+                stompClient.send("/app/" + room, {}, 
                   JSON.stringify({'author':author, 'body':body}));
             }
             
@@ -58,6 +61,7 @@
             </div>
             <br />
             <div>
+                <input type="text" id="room" placeholder="room code here"/>
                 <button id="connect" onclick="connect();">Connect</button>
                 <button id="disconnect" disabled="disabled" onclick="disconnect();">
                     Disconnect
